@@ -1,0 +1,21 @@
+{
+  "name": "waypoints-bedrock",
+  "version": "0.1.0",
+  "description": "WayPoints as a Minecraft Bedrock add-on: activate lodestones and teleport between them.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "check": "tsc -p .",
+    "test": "node --test test/*.test.mjs",
+    "build": "node tools/build.mjs"
+  },
+  "engines": {
+    "node": ">=22.2"
+  },
+  "devDependencies": {
+    "@minecraft/server": "2.1.0",
+    "@minecraft/server-ui": "2.0.0",
+    "typescript": "5.9.3"
+  }
+}

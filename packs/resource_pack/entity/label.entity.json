@@ -1,0 +1,12 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "waypoints:label",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/entity/waypoints_label" },
+      "geometry": { "default": "geometry.waypoints.label" },
+      "render_controllers": ["controller.render.default"]
+    }
+  }
+}

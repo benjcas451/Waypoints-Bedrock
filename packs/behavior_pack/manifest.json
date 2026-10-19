@@ -1,0 +1,34 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "WayPoints",
+    "description": "Wegpunkte mit Magnetit und Namensschild / Waypoints with lodestones and name tags",
+    "uuid": "fbb2331f-abe9-4518-a57a-6aadd29ed970",
+    "version": [0, 1, 0],
+    "min_engine_version": [1, 21, 100]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "116e985d-9664-4f81-8643-951370bedad7",
+      "version": [0, 1, 0]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "entry": "scripts/main.js",
+      "uuid": "d6c6c72e-66a9-4267-9084-45475560a244",
+      "version": [0, 1, 0]
+    }
+  ],
+  "dependencies": [
+    { "module_name": "@minecraft/server", "version": "2.1.0" },
+    { "module_name": "@minecraft/server-ui", "version": "2.0.0" },
+    { "uuid": "a8d983f8-a67c-47bc-b58c-7f24d70b0c20", "version": [0, 1, 0] }
+  ],
+  "metadata": {
+    "authors": ["benjcas451"],
+    "license": "MIT",
+    "url": "https://github.com/benjcas451/Waypoints-Bedrock"
+  }
+}

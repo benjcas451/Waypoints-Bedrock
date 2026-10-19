@@ -1,0 +1,88 @@
+name: Build & Release
+
+# Every push and pull request checks, tests and builds the add-on; the .mcaddon is attached to the run.
+# On main (or when started by hand) a GitHub release v<version> is created with the .mcaddon,
+# unless that release already exists. To publish a new release, raise "version" in package.json.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Read version
+        id: version
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::Invalid version '$version' in package.json"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+
+      - name: Check the add-on
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: unzip -l "dist/WayPoints-${VERSION}.mcaddon"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: waypoints-bedrock
+          path: dist/WayPoints-${{ steps.version.outputs.version }}.mcaddon
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: waypoints-bedrock
+          path: dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          tag="v${VERSION}"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "::notice::Release $tag already exists, nothing to do. Raise the version in package.json for a new release."
+            exit 0
+          fi
+          addon="dist/WayPoints-${VERSION}.mcaddon"
+          test -f "$addon"
+          prerelease=""
+          if [[ "$VERSION" == *-* ]]; then prerelease="--prerelease"; fi
+          gh release create "$tag" "$addon" \
+            --target "$GITHUB_SHA" \
+            --title "WayPoints Bedrock ${VERSION}" \
+            --generate-notes \
+            $prerelease
